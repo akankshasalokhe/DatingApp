@@ -24,8 +24,4 @@ app.get("/",(req,res)=>{
     res.send("Welcome to the Backend API")
 })
 
-const PORT=process.env.PORT || 2000
-
-app.listen(PORT,()=>{
-    console.log(`Server Running on ${PORT}`)
-})
+module.exports = app;
