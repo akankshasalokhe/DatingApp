@@ -1,6 +1,7 @@
 const JWT = require('jsonwebtoken');
 const User = require('../models/userModel');
 const Otp = require('../models/otpModel');
+const connectDB = require('../config/db');
 
 const generateToken = (user) => {
   return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
@@ -9,6 +10,7 @@ const generateToken = (user) => {
 };
 
 const registerController = async (req, res) => {
+  await connectDB;
   try {
     const {
       phoneNo,
@@ -176,6 +178,9 @@ const registerController = async (req, res) => {
 // };
 
 const loginController = async (req, res) => {
+
+    await connectDB;
+
   try {
     const { phoneNo } = req.body;
 
@@ -222,6 +227,9 @@ const loginController = async (req, res) => {
 
 
 const getUserController = async (req, res) => {
+
+    await connectDB;
+
   try {
     const { id } = req.params;
 
@@ -249,6 +257,8 @@ const getUserController = async (req, res) => {
 
 
 const getAllUsersController = async (req, res) => {
+    await connectDB;
+
   try {
     const users = await User.find().select('-otp');
 
@@ -266,6 +276,8 @@ const getAllUsersController = async (req, res) => {
 };
 
 const deleteUserController = async (req, res) => {
+    await connectDB;
+
   try {
     const { id } = req.params;
 
@@ -292,6 +304,8 @@ const deleteUserController = async (req, res) => {
 };
 
 const updateUserController = async (req, res) => {
+    await connectDB;
+
   try {
     const { id } = req.params;
     const updates = req.body;
