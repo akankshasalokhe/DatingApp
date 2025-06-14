@@ -1,4 +1,3 @@
-const express=require('express')
 const dotenv=require('dotenv')
 const connectDB=require('./config/db.js')
 const authRoute=require('./routes/authRoute.js')
