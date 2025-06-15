@@ -10,7 +10,7 @@ const generateToken = (user) => {
 };
 
 const registerController = async (req, res) => {
-  await connectDB;
+  await connectDB();
   try {
     const {
       phoneNo,
@@ -179,7 +179,7 @@ const registerController = async (req, res) => {
 
 const loginController = async (req, res) => {
 
-    await connectDB;
+    await connectDB();
 
   try {
     const { phoneNo } = req.body;
@@ -228,7 +228,7 @@ const loginController = async (req, res) => {
 
 const getUserController = async (req, res) => {
 
-    await connectDB;
+    await connectDB();
 
   try {
     const { id } = req.params;
@@ -257,7 +257,7 @@ const getUserController = async (req, res) => {
 
 
 const getAllUsersController = async (req, res) => {
-    await connectDB;
+    await connectDB();
 
   try {
     const users = await User.find().select('-otp');
@@ -276,7 +276,7 @@ const getAllUsersController = async (req, res) => {
 };
 
 const deleteUserController = async (req, res) => {
-    await connectDB;
+    await connectDB();
 
   try {
     const { id } = req.params;
@@ -304,7 +304,7 @@ const deleteUserController = async (req, res) => {
 };
 
 const updateUserController = async (req, res) => {
-    await connectDB;
+    await connectDB();
 
   try {
     const { id } = req.params;
