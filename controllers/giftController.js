@@ -2,6 +2,8 @@ const Gift = require('../models/giftModel');
 const path = require('path');
 
 const getGiftsController = async (req, res) => {
+    await connectDB();
+
   try {
     const { category, search = '', page = 1, limit = 10 } = req.query;
     const query = {
@@ -21,6 +23,8 @@ const getGiftsController = async (req, res) => {
 };
 
 const createGiftController = async (req, res) => {
+    await connectDB();
+
   try {
     const { name, price, category,stockCount } = req.body;
     const image = req.file ? req.file.filename : '';
@@ -36,6 +40,8 @@ const createGiftController = async (req, res) => {
 };
 
 const updateGiftController = async (req, res) => {
+    await connectDB();
+  
   try {
     const { name, price, category,stockCount } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : undefined;
@@ -53,6 +59,8 @@ const updateGiftController = async (req, res) => {
 };
 
 const deleteGiftController = async (req, res) => {
+    await connectDB();
+  
   try {
     const deleted = await Gift.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Gift not found' });
