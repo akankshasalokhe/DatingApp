@@ -1,6 +1,9 @@
+const connectDB = require('../config/db');
 const GiftCategory = require('../models/giftCategoryModel');
 
 const getCategoriesController = async (req, res) => {
+    await connectDB();
+
   const { page = 1, limit = 10 } = req.query;
   try {
     const total = await GiftCategory.countDocuments();
@@ -15,6 +18,8 @@ const getCategoriesController = async (req, res) => {
 };
 
 const createCategoryController = async (req, res) => {
+    await connectDB();
+
   const { name, subcategories = [] } = req.body;
   try {
     const exists = await GiftCategory.findOne({ name });
@@ -29,6 +34,8 @@ const createCategoryController = async (req, res) => {
 };
 
 const updateCategoryController = async (req, res) => {
+    await connectDB();
+
   const { id } = req.params;
   const { name, subcategories } = req.body;
   try {
@@ -45,6 +52,8 @@ const updateCategoryController = async (req, res) => {
 };
 
 const deleteCategoryController = async (req, res) => {
+    await connectDB();
+
   const { id } = req.params;
   try {
     const deleted = await GiftCategory.findByIdAndDelete(id);
