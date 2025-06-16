@@ -1,129 +1,100 @@
-
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  userId: { type: String },
+
   firstName: { type: String, required: true, trim: true },
-  lastName:{type:String},
-  userId: { type: String, unique: true, required: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  phoneNo: { type: String, required: true, unique: true },
+  lastName: { type: String, required: true, trim: true },
+
+  phoneNo: {
+    type: String,
+    required: true,
+    unique: true,
+    match: [/^\d{10,15}$/, 'Please enter a valid phone number']
+  },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+
+  dob: { type: Date, required: true },
+
   gender: {
     type: String,
     enum: ['Male', 'Female', 'Other'],
-    required: true,
+    required: true
   },
-  dob: { type: Date, required: true },
-  age: { type: Number },
 
-  sexualOrientation: {
+  lookingFor: {
     type: String,
-    enum: ['Straight', 'Gay', 'Lesbian', 'Bisexual', 'Asexual', 'Other'],
-  },
-  customSexualOrientation: { type: String },
-
-  location: { type: String },
-  jobTitle: { type: String },
-
-  salary: {
-    type: String,
-    enum: ['less than 10', '10-20', '20-50', '50 or more', 'Do not discuss'],
-  },
-  companyName: { type: String },
-  education: {
-    type: String,
-    enum: ['High School', 'Bachelors', 'Masters', 'PhD'],
+    enum: [
+      'Friendship', 'Dating', 'Long-term', 'Chat', 'Marriage', 'Other',
+      'Short-term', 'Situationship', 'Fun', 'Living', 'Still figuring it out'
+    ]
   },
 
   hobbies: [{
     type: String,
     enum: [
       'Swimming', 'Playing Chess', 'Playing Games', 'Dancing',
-      'Football', 'Riding', 'Camping', 'Photo Graphy', 'Music', 'Movies', 'Other'
+      'Football', 'Riding', 'Camping', 'Photography',
+      'Music', 'Movies', 'Other'
     ]
   }],
-  customHobbies: [{ type: String }],
 
   hangoutSpots: [{
     type: String,
     enum: [
       'Gaming Room', 'Cloud 9', 'Bedroom', 'Cafe meme', 'Starbucks',
-      'Long-Drive', 'Silent place', '2BHK', 'Mansoon place', 'Camping', 'Other'
+      'Long-Drive', 'Silent place', '2BHK', 'Monsoon place', 'Camping', 'Other'
     ]
   }],
-  customHangoutSpots: [{ type: String }],
 
   relationshipStatus: {
     type: String,
-    enum: ['Single', 'In a Relationship', 'Married', 'Divorced', 'Widowed', 'Engaged'],
+    enum: ['Single', 'In a Relationship', 'Married', 'Divorced', 'Widowed', 'Engaged']
   },
 
-photo: {
-  type: [String], // array of image URLs or file paths
-  validate: {
-    validator: function (photos) {
-      return photos.length >= 2 && photos.length <= 6;
-    },
-    message: 'You must upload at least 2 and at most 6 photos.'
-  }
-},
-  height: { type: String },
-
-  bodyType: {
+  education: {
     type: String,
-    enum: ['Slim', 'Average', 'Athletic', 'Heavy', 'Other'],
-  },
-  customBodyType: { type: String },
-
-  religion: { type: String },
-  language: [{ type: String }],
-
-  smoking: {
-    type: String,
-    enum: ['Yes', 'No', 'Occasionally'],
-  },
-  drinking: {
-    type: String,
-    enum: ['Yes', 'No', 'Socially'],
-  },
-  pets: {
-    type: String,
-    enum: ['Yes', 'No', 'Like them', 'Allergic'],
-  },
-  kids: {
-    type: String,
-    enum: ['Yes', 'No', 'Maybe someday'],
-  },
-  zodiacSign: {
-    type: String,
-    enum: [
-      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-    ],
+    enum: ['High School', 'Bachelors', 'Masters', 'PhD']
   },
 
-  otp: { type: String },
+  companyName: { type: String, trim: true },
 
-  lookingFor: {
+  salary: {
     type: String,
-    enum: [
-      'Friendship', 'Dating', 'Long-term', 'Chat', 'Marriage', 'Other',
-      'short-term', 'Situationship', 'Fun', 'Living', 'Still figuring it out'
-    ]
+    enum: ['Less than 10', '10-20', '20-50', '50 or more', 'Do not discuss']
   },
-  customLookingFor: { type: String },
 
-  interestedInGender: [{
-    type: String,
-    enum: ['Male', 'Female', 'Beyond Secondary', 'Other']
-  }],
-  customInterestedInGender: [{ type: String }],
-
-  ageRangePreference: {
-    min: { type: Number },
-    max: { type: Number },
+  photo: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: function (photos) {
+        return Array.isArray(photos) && photos.length >= 2 && photos.length <= 6;
+      },
+      message: 'You must upload at least 2 and at most 6 photos.'
+    }
   },
-  locationPreference: { type: String },
 
+  // otp: { type: String }
 }, { timestamps: true });
+
+// Automatically generate userId based on _id
+// userSchema.pre('save', function (next) {
+//   if (!this.userId) {
+//     this.userId = `UID_${this._id.toString().slice(-6).toUpperCase()}`;
+//   }
+//   next();
+// });
+
+// // Indexes for faster querying
+// userSchema.index({ email: 1 });
+// userSchema.index({ phoneNo: 1 });
 
 module.exports = mongoose.model('User', userSchema);
