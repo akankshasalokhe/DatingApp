@@ -12,9 +12,11 @@ const generateToken = (user) => {
 const registerController = async (req, res) => {
   await connectDB();
   try {
+    console.log('Incoming body:', req.body); // ✅ DEBUG
+
     const {
       phoneNo,
-      otp, // optional for testing
+     // optional for testing
       firstName,
       lastName,
       email,
@@ -30,7 +32,6 @@ const registerController = async (req, res) => {
       photo
     } = req.body;
 
-  
     if (!phoneNo || !firstName || !lastName || !email || !dob || !gender) {
       return res.status(400).json({
         success: false,
@@ -38,7 +39,6 @@ const registerController = async (req, res) => {
       });
     }
 
-  
     const existingUser = await User.findOne({ $or: [{ email }, { phoneNo }] });
     if (existingUser) {
       return res.status(409).json({
@@ -47,7 +47,6 @@ const registerController = async (req, res) => {
       });
     }
 
-    
     const newUser = new User({
       firstName,
       lastName,
@@ -64,10 +63,10 @@ const registerController = async (req, res) => {
       companyName,
       salary,
       photo,
-      otp // only saved for testing, not verified here
+      
     });
 
-    await newUser.save();
+    await newUser.save(); // ✅ Save user
 
     const token = generateToken(newUser);
 
@@ -86,13 +85,14 @@ const registerController = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Register Error:', error);
+    console.error('Register Error:', error); // ✅ DEBUG
     res.status(500).json({
       success: false,
       message: 'Internal server error',
     });
   }
 };
+
 
 
 
