@@ -9,7 +9,7 @@ const path = require('path')
 
 const cors=require('cors')
 dotenv.config()
-connectDB()
+ connectDB()
 const app=express()
 app.use(cors())
 app.use(express.json())
@@ -24,5 +24,10 @@ app.get("/",(req,res)=>{
     res.send("Welcome to the Backend API")
 })
 
+const PORT=process.env.PORT || 2000
+
+app.listen(PORT,()=>{
+    console.log(`Server Running on ${PORT}`.bgMagenta)
+})
 
 module.exports = app;
