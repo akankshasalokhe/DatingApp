@@ -2,6 +2,9 @@ const JWT = require('jsonwebtoken');
 const User = require('../models/userModel');
 const Otp = require('../models/otpModel');
 const connectDB = require('../config/db');
+const UserSubCategory = require('../models/userSubCategoriesModel')
+const UserCategory = require('../models/userCategoryModel')
+
 
 const generateToken = (user) => {
   return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
@@ -12,11 +15,10 @@ const generateToken = (user) => {
 const registerController = async (req, res) => {
   await connectDB();
   try {
-    console.log('Incoming body:', req.body); // ✅ DEBUG
+    console.log('Incoming body:', req.body);
 
     const {
       phoneNo,
-     // optional for testing
       firstName,
       lastName,
       email,
@@ -32,7 +34,7 @@ const registerController = async (req, res) => {
       photo
     } = req.body;
 
-    if (!phoneNo || !firstName || !lastName || !email || !dob || !gender) {
+    if (!phoneNo || !firstName || !lastName || !email || !dob|| !gender) {
       return res.status(400).json({
         success: false,
         message: 'Please fill all required fields.',
@@ -47,6 +49,41 @@ const registerController = async (req, res) => {
       });
     }
 
+  const getCategoryId = async (categoryName) => {
+  const category = await UserCategory.findOne({ name: categoryName });
+  if (!category) throw new Error(`Category '${categoryName}' not found.`);
+  return category._id;
+};
+
+const mapField = async (value, categoryName) => {
+  const categoryId = await getCategoryId(categoryName);
+  const obj = await UserSubCategory.findOne({ name: value, category: categoryId });
+  if (!obj) throw new Error(`Invalid ${categoryName} selected: ${value}`);
+  return obj._id;
+};
+
+const mapArrayField = async (array, categoryName) => {
+  const categoryId = await getCategoryId(categoryName);
+  const results = [];
+  for (const val of array) {
+    const obj = await UserSubCategory.findOne({ name: val, category: categoryId });
+    if (!obj) throw new Error(`Invalid ${categoryName} selected: ${val}`);
+    results.push(obj._id);
+  }
+  return results;
+};
+
+
+
+     const genderId = await mapField(gender, 'gender');
+    const lookingForId = await mapField(lookingFor, 'lookingFor');
+    const hobbiesIds = await mapArrayField(hobbies, 'hobbies');
+     const hangoutSpotsIds = await mapArrayField(hangoutSpots, 'hangoutSpots');
+    const relationshipStatusId = await mapField(relationshipStatus, 'relationshipStatus');
+    const educationId = await mapField(education, 'education');
+    const salaryId = await mapField(salary, 'salary');
+   
+
     const newUser = new User({
       firstName,
       lastName,
@@ -54,19 +91,19 @@ const registerController = async (req, res) => {
       phoneNo,
       email,
       dob,
-      gender,
-      lookingFor,
-      hobbies,
-      hangoutSpots,
-      relationshipStatus,
-      education,
+      gender: genderId,
+      lookingFor:lookingForId,
+      hobbies:hobbiesIds,
+      hangoutSpots:hangoutSpotsIds,
+      relationshipStatus:relationshipStatusId,
+      education:educationId,
       companyName,
-      salary,
+      salary:salaryId,
       photo,
       
     });
 
-    await newUser.save(); // ✅ Save user
+    await newUser.save();
 
     const token = generateToken(newUser);
 
@@ -85,7 +122,7 @@ const registerController = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Register Error:', error); // ✅ DEBUG
+    console.error('Register Error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -226,107 +263,115 @@ const loginController = async (req, res) => {
 };
 
 
-const getUserController = async (req, res) => {
-
-    await connectDB();
-
+const getSingleUserController = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const user = await User.findById(id).select('-otp'); // exclude OTP
+    const user = await User.findById(req.params.id)
+      .populate('gender sexuality religion zodiacSign country bodyType language smoking drinking salary relationshipStatus hobbies');
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found.',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    console.error('Get User Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    console.error('Get User Error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
 
+
 const getAllUsersController = async (req, res) => {
-    await connectDB();
-
   try {
-    const users = await User.find().select('-otp');
+    const users = await User.find()
+      .populate('gender sexuality religion zodiacSign country bodyType language smoking drinking salary relationshipStatus hobbies');
 
-    res.status(200).json({
-      success: true,
-      users,
-    });
-  } catch (error) {
-    console.error('Get All Users Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
+    res.status(200).json({ success: true, users });
+  } catch (err) {
+    console.error('Get All Users Error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
 const deleteUserController = async (req, res) => {
-    await connectDB();
-
   try {
-    const { id } = req.params;
-
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found.',
-      });
+    const userId = req.params.id;
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'User deleted successfully.',
-    });
-  } catch (error) {
-    console.error('Delete User Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error.',
-    });
+    res.status(200).json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Delete Error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
+
+
+
 const updateUserController = async (req, res) => {
-    await connectDB();
-
   try {
-    const { id } = req.params;
-    const updates = req.body;
+    const userId = req.params.id;
+    const {
+      firstName, lastName, email, phoneNo, dob, gender, sexuality, religion, zodiacSign,
+      country, bodyType, language, smoking, drinking, salary, relationshipStatus,
+      hobbies, companyName, photo
+    } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const updateFields = {
+      firstName, lastName, email, phoneNo, dob, companyName
+    };
+
+    const getCategoryId = async (categoryName) => {
+  const category = await UserCategory.findOne({ name: categoryName });
+  if (!category) throw new Error(`Category '${categoryName}' not found.`);
+  return category._id;
+};
+
+const mapField = async (value, categoryName) => {
+  const categoryId = await getCategoryId(categoryName);
+  const obj = await UserSubCategory.findOne({ name: value, category: categoryId });
+  if (!obj) throw new Error(`Invalid ${categoryName} selected: ${value}`);
+  return obj._id;
+};
+
+const mapArrayField = async (array, categoryName) => {
+  const categoryId = await getCategoryId(categoryName);
+  const results = [];
+  for (const val of array) {
+    const obj = await UserSubCategory.findOne({ name: val, category: categoryId });
+    if (!obj) throw new Error(`Invalid ${categoryName} selected: ${val}`);
+    results.push(obj._id);
+  }
+  return results;
+};
+
+    if (photo) updateFields.photo = photo;
+    if (gender) updateFields.gender = await mapField(gender, 'gender');
+    if (sexuality) updateFields.sexuality = await mapField(sexuality, 'sexuality');
+    if (religion) updateFields.religion = await mapField(religion, 'religion');
+    if (zodiacSign) updateFields.zodiacSign = await mapField(zodiacSign, 'zodiacSign');
+    if (country) updateFields.country = await mapField(country, 'country');
+    if (bodyType) updateFields.bodyType = await mapField(bodyType, 'bodyType');
+    if (language) updateFields.language = await mapArrayField(language, 'language');
+    if (smoking) updateFields.smoking = await mapField(smoking, 'smoking');
+    if (drinking) updateFields.drinking = await mapField(drinking, 'drinking');
+    if (salary) updateFields.income = await mapField(salary, 'salary');
+    if (relationshipStatus) updateFields.status = await mapField(relationshipStatus, 'relationshipStatus');
+    if (hobbies) updateFields.hobbies = await mapArrayField(hobbies, 'hobbies');
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'User updated successfully.',
-      user: updatedUser,
-    });
-  } catch (error) {
-    console.error('Update Error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    res.status(200).json({ success: true, message: 'User updated', user: updatedUser });
+  } catch (err) {
+    console.error('Update Error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -336,4 +381,4 @@ const updateUserController = async (req, res) => {
 
 
 
-module.exports = { registerController , loginController, getUserController, getAllUsersController,deleteUserController,updateUserController };
+module.exports = { registerController , loginController, getSingleUserController, getAllUsersController,deleteUserController,updateUserController };
