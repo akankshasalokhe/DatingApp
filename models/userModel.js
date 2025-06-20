@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: [/^\d{10,15}$/, 'Please enter a valid phone number']
+    match: [/^\d{10}$/, 'Please enter a valid phone number']
   },
 
   email: {
@@ -23,53 +23,21 @@ const userSchema = new mongoose.Schema({
 
   dob: { type: Date, required: true },
 
-  gender: {
-    type: String,
-    enum: ['Male', 'Female', 'Other'],
-    required: true
-  },
-
-  lookingFor: {
-    type: String,
-    enum: [
-      'Friendship', 'Dating', 'Long-term', 'Chat', 'Marriage', 'Other',
-      'Short-term', 'Situationship', 'Fun', 'Living', 'Still figuring it out'
-    ]
-  },
-
-  hobbies: [{
-    type: String,
-    enum: [
-      'Swimming', 'Playing Chess', 'Playing Games', 'Dancing',
-      'Football', 'Riding', 'Camping', 'Photography',
-      'Music', 'Movies', 'Other'
-    ]
-  }],
-
-  hangoutSpots: [{
-    type: String,
-    enum: [
-      'Gaming Room', 'Cloud 9', 'Bedroom', 'Cafe meme', 'Starbucks',
-      'Long-Drive', 'Silent place', '2BHK', 'Monsoon place', 'Camping', 'Other'
-    ]
-  }],
-
-  relationshipStatus: {
-    type: String,
-    enum: ['Single', 'In a Relationship', 'Married', 'Divorced', 'Widowed', 'Engaged']
-  },
-
-  education: {
-    type: String,
-    enum: ['High School', 'Bachelors', 'Masters', 'PhD']
-  },
+  // Linked fields from UserSubCategory
+  gender: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  sexuality: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  religion: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  zodiacSign: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  country: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  bodyType: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  language: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' }],
+  smoking: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  drinking: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  salary: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  relationshipStatus: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' },
+  hobbies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSubCategory' }],
 
   companyName: { type: String, trim: true },
-
-  salary: {
-    type: String,
-    enum: ['Less than 10', '10-20', '20-50', '50 or more', 'Do not discuss']
-  },
 
   photo: {
     type: [String],
@@ -80,9 +48,8 @@ const userSchema = new mongoose.Schema({
       },
       message: 'You must upload at least 2 and at most 6 photos.'
     }
-  },
+  }
 
-  // otp: { type: String }
 }, { timestamps: true });
 
 // Automatically generate userId based on _id
