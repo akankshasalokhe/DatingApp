@@ -5,10 +5,7 @@ const giftCategorySchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-  },
-  subcategories: [{
-    type: String,
-  }],
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('GiftCategory', giftCategorySchema);

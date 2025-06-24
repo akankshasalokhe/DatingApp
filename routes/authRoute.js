@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerController,loginController,getSingleUserController,getAllUsersController,deleteUserController,updateUserController } = require('../controllers/authController');
+const { registerController,loginController,getSingleUserController,getAllUsersController,deleteUserController,updateUserController,publicKeyController } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.get('/getUserbyId/:id', getSingleUserController);
 router.get('/getAllusers', getAllUsersController);
 router.delete('/delete/:id', deleteUserController);
 router.put('/update/:id', updateUserController);
+router.put('/public-key',publicKeyController)
 
 module.exports = router;
 

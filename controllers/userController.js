@@ -33,6 +33,19 @@ const createUserCategoryController = async (req, res) => {
   }
 };
 
+const getAllCategories = async (req, res) => {
+  await connectDB();
+    console.log("getAllCategories route hit"); // <-- Add this log
+
+
+  try {
+    const categories = await UserCategory.find().sort({ createdAt: -1 });
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 const updateUserCategoryController = async (req, res) => {
     await connectDB();
 
@@ -68,5 +81,5 @@ module.exports = {
   getUserCategoriesController,
   createUserCategoryController,
   updateUserCategoryController,
-  deleteUserCategoryController
+  deleteUserCategoryController,getAllCategories
 };

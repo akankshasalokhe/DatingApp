@@ -20,12 +20,12 @@ const getCategoriesController = async (req, res) => {
 const createCategoryController = async (req, res) => {
     await connectDB();
 
-  const { name, subcategories = [] } = req.body;
+  const { name = [] } = req.body;
   try {
     const exists = await GiftCategory.findOne({ name });
     if (exists) return res.status(400).json({ error: 'Category already exists' });
 
-    const category = new GiftCategory({ name, subcategories });
+    const category = new GiftCategory({ name});
     await category.save();
     res.status(201).json(category);
   } catch (err) {
@@ -37,11 +37,11 @@ const updateCategoryController = async (req, res) => {
     await connectDB();
 
   const { id } = req.params;
-  const { name, subcategories } = req.body;
+  const { name } = req.body;
   try {
     const updated = await GiftCategory.findByIdAndUpdate(
       id,
-      { name, subcategories },
+      { name},
       { new: true }
     );
     if (!updated) return res.status(404).json({ error: 'Category not found' });

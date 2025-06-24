@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
 
+
   dob: { type: Date, required: true },
 
   // Linked fields from UserSubCategory
@@ -48,7 +49,9 @@ const userSchema = new mongoose.Schema({
       },
       message: 'You must upload at least 2 and at most 6 photos.'
     }
-  }
+  },
+  publicKey: { type: String }, // E2EE: stored PEM format
+  isBlocked: { type: Boolean, default: false },
 
 }, { timestamps: true });
 

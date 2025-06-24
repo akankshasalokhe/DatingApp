@@ -3,7 +3,8 @@ const User = require('../models/userModel');
 const Otp = require('../models/otpModel');
 const connectDB = require('../config/db');
 const UserSubCategory = require('../models/userSubCategoriesModel')
-const UserCategory = require('../models/userCategoryModel')
+const UserCategory = require('../models/userCategoryModel');
+const { message } = require('statuses');
 
 
 const generateToken = (user) => {
@@ -375,10 +376,18 @@ const mapArrayField = async (array, categoryName) => {
   }
 };
 
+const publicKeyController = async (req,res) =>{
+  try{
+    const {userId,publicKey} = req.body
+    await User.findByIdAndUpdate(userId, { publicKey })
+    res.status(200).json({
+      message:'Public key updated successfully'
+    })
+  }catch (error){
+    res.status(500).json({
+      error:'Failed to update public key'
+    })
+  }
+}
 
-
-
-
-
-
-module.exports = { registerController , loginController, getSingleUserController, getAllUsersController,deleteUserController,updateUserController };
+module.exports = { registerController , loginController, getSingleUserController, getAllUsersController,deleteUserController,updateUserController,publicKeyController };
