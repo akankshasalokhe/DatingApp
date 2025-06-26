@@ -2,20 +2,28 @@ const connectDB = require('../config/db');
 const UserCategory = require('../models/userCategoryModel');
 
 const getUserCategoriesController = async (req, res) => {
-    await connectDB();
+  await connectDB();
 
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, search = '' } = req.query;
+
   try {
-    const total = await UserCategory.countDocuments();
-    const categories = await UserCategory.find()
+    const query = search
+      ? { name: { $regex: search, $options: 'i' } } // case-insensitive search
+      : {};
+
+    const total = await UserCategory.countDocuments(query);
+    const categories = await UserCategory.find(query)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
+      .skip((page - 1) * Number(limit))
       .limit(Number(limit));
+
     res.json({ categories, total });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 const createUserCategoryController = async (req, res) => {
     await connectDB();
