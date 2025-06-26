@@ -9,7 +9,9 @@ const createUserSubCategoryController = async (req, res) => {
       return res.status(400).json({ message: 'Name and category are required.' });
     }
 
-    const newSubCategory = new UserSubCategory({ name, category });
+    const image = req.file ? `/uploads/userSubCategories/${req.file.filename}` : null;
+
+    const newSubCategory = new UserSubCategory({ name, category, image });
     await newSubCategory.save();
 
     res.status(201).json(newSubCategory);
@@ -22,8 +24,24 @@ const createUserSubCategoryController = async (req, res) => {
 
 const getAllUserSubCategoriesController = async (req, res) => {
   try {
-    const subcategories = await UserSubCategory.find().populate('category', 'name');
-    res.status(200).json(subcategories);
+    const { page = 1, limit = 10, search = '' } = req.query;
+    const query = search
+      ? { name: { $regex: search, $options: 'i' } }
+      : {};
+
+    const total = await UserSubCategory.countDocuments(query);
+    const subcategories = await UserSubCategory.find(query)
+      .populate('category', 'name')
+      .skip((page - 1) * limit)
+      .limit(Number(limit))
+      .sort({ name: 1 });
+
+    res.status(200).json({
+      data: subcategories,
+      currentPage: Number(page),
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+    });
   } catch (error) {
     console.error('Fetch SubCategories Error:', error);
     res.status(500).json({ message: 'Server error' });
