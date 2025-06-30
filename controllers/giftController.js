@@ -1,47 +1,54 @@
 const Gift = require('../models/giftModel');
-const path = require('path');
+const connectDB = require('../config/db'); // Ensure this is your DB connection utility
 
+// GET: Fetch gifts with optional category, search, pagination
 const getGiftsController = async (req, res) => {
-    await connectDB();
-
+  await connectDB();
   try {
     const { category, search = '', page = 1, limit = 10 } = req.query;
+
     const query = {
-      ...(category && category !== 'All Categories' ? { category } : {}),
+      ...(category && category !== 'All Categories' && { category }),
       name: { $regex: search, $options: 'i' },
     };
+
     const total = await Gift.countDocuments(query);
     const gifts = await Gift.find(query)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .skip((+page - 1) * +limit)
+      .limit(+limit);
 
-    res.json({ gifts, total });
+    res.status(200).json({ gifts, total });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error fetching gifts:', err);
+    res.status(500).json({ message: 'Failed to fetch gifts', error: err.message });
   }
 };
 
+// POST: Create a new gift
 const createGiftController = async (req, res) => {
-    await connectDB();
-
+  await connectDB();
   try {
-    const { name, price, category} = req.body;
-    const image = req.file ? req.file.filename : '';
+    const { name, price, category } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : '';
 
+    if (!name || !price || !category) {
+      return res.status(400).json({ message: 'Name, price, and category are required.' });
+    }
 
-    const newGift = new Gift({ name, price, category, image});
+    const newGift = new Gift({ name, price, category, image });
     await newGift.save();
 
     res.status(201).json({ message: 'Gift added successfully', gift: newGift });
   } catch (err) {
+    console.error('Error creating gift:', err);
     res.status(500).json({ error: err.message });
   }
 };
 
+// PUT: Update gift by ID
 const updateGiftController = async (req, res) => {
-    await connectDB();
-  
+  await connectDB();
   try {
     const { name, price, category } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : undefined;
@@ -49,23 +56,34 @@ const updateGiftController = async (req, res) => {
     const updateData = { name, price, category };
     if (image) updateData.image = image;
 
-    const updatedGift = await Gift.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!updatedGift) return res.status(404).json({ error: 'Gift not found' });
+    const updatedGift = await Gift.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
 
-    res.json({ message: 'Gift updated', gift: updatedGift });
+    if (!updatedGift) {
+      return res.status(404).json({ message: 'Gift not found' });
+    }
+
+    res.status(200).json({ message: 'Gift updated successfully', gift: updatedGift });
   } catch (err) {
+    console.error('Error updating gift:', err);
     res.status(500).json({ error: err.message });
   }
 };
 
+// DELETE: Remove gift by ID
 const deleteGiftController = async (req, res) => {
-    await connectDB();
-  
+  await connectDB();
   try {
-    const deleted = await Gift.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Gift not found' });
-    res.json({ message: 'Gift deleted' });
+    const deletedGift = await Gift.findByIdAndDelete(req.params.id);
+    if (!deletedGift) {
+      return res.status(404).json({ message: 'Gift not found' });
+    }
+    res.status(200).json({ message: 'Gift deleted successfully' });
   } catch (err) {
+    console.error('Error deleting gift:', err);
     res.status(500).json({ error: err.message });
   }
 };
