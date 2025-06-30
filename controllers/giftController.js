@@ -51,7 +51,7 @@ const updateGiftController = async (req, res) => {
   await connectDB();
   try {
     const { name, price, category } = req.body;
-    const image = req.file ? `https://datingapp-p2d5.onrender.com/uploads/${req.file.filename}` : undefined;
+    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     const updateData = { name, price, category };
     if (image) updateData.image = image;
