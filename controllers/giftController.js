@@ -26,11 +26,11 @@ const createGiftController = async (req, res) => {
     await connectDB();
 
   try {
-    const { name, price, category,stockCount } = req.body;
+    const { name, price, category} = req.body;
     const image = req.file ? req.file.filename : '';
 
 
-    const newGift = new Gift({ name, price, category, image,stockCount });
+    const newGift = new Gift({ name, price, category, image});
     await newGift.save();
 
     res.status(201).json({ message: 'Gift added successfully', gift: newGift });
@@ -43,10 +43,10 @@ const updateGiftController = async (req, res) => {
     await connectDB();
   
   try {
-    const { name, price, category,stockCount } = req.body;
+    const { name, price, category } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-    const updateData = { name, price, category,stockCount };
+    const updateData = { name, price, category };
     if (image) updateData.image = image;
 
     const updatedGift = await Gift.findByIdAndUpdate(req.params.id, updateData, { new: true });

@@ -5,7 +5,7 @@ const giftSchema = new mongoose.Schema({
   price: { type: String, required: true },
   image: { type: String, default: '' },
   category: { type: String, required: true },
-  stockCount:{type:String, required:true},
+  // stockCount:{type:String, required:true},
   createdAt: { type: Date, default: Date.now },
 });
 
