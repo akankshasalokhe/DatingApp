@@ -8,6 +8,7 @@ const userCategoryRoute = require('./routes/userCategoryRoute.js')
 const userSubCategoryRoute = require('./routes/userSubCategoryRoute.js')
 const matchRoute = require('./routes/matchRoute.js')
 const privacyPolicyRoute = require('./routes/privacyPolicyRoute.js');
+const termsConditionRoute = require('./routes/termsConditionRoute.js');
 
 const path = require('path')
 const initSocket = require('./socket');
@@ -34,6 +35,8 @@ app.use("/api/gifts",giftRoutes)
 app.use("/api/categories",giftCategoryRoutes)
 app.use("/api/match",matchRoute)
 app.use("/api/privacyPolicy",privacyPolicyRoute)
+app.use("/api/termsAndConditions", termsConditionRoute);
+
 
 app.get("/",(req,res)=>{
     res.send("Welcome to the Backend API")
