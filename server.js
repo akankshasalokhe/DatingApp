@@ -7,11 +7,11 @@ const giftCategoryRoutes = require('./routes/giftCategoryRoutes.js')
 const userCategoryRoute = require('./routes/userCategoryRoute.js')
 const userSubCategoryRoute = require('./routes/userSubCategoryRoute.js')
 const matchRoute = require('./routes/matchRoute.js')
+const privacyPolicyRoute = require('./routes/privacyPolicyRoute.js');
+
 const path = require('path')
 const initSocket = require('./socket');
 const http = require('http');
-
-
 
 
 const cors=require('cors')
@@ -33,6 +33,7 @@ app.use("/api/userSubCategory",userSubCategoryRoute)
 app.use("/api/gifts",giftRoutes)
 app.use("/api/categories",giftCategoryRoutes)
 app.use("/api/match",matchRoute)
+app.use("/api/privacyPolicy",privacyPolicyRoute)
 
 app.get("/",(req,res)=>{
     res.send("Welcome to the Backend API")
